@@ -71,9 +71,7 @@ public class ElevatorSubsystem extends SubsystemBase implements BaseLinearMechan
             true,
             ElevatorPosition.BOTTOM.value);
 
-    @Log(groups = "control")
     private double feedbackVoltage = 0;
-    @Log(groups = "control")
     private double feedforwardVoltage = 0;
 
     private double simVelocity = 0.0;
@@ -87,10 +85,9 @@ public class ElevatorSubsystem extends SubsystemBase implements BaseLinearMechan
     private final PositionTracker positionTracker;
     private final MechanismLigament2d ligament;
 
-    @Log
     private boolean initialized;
 
-    public Elevator(PositionTracker positionTracker, MechanismLigament2d ligament) {
+    public ElevatorSubsystem(PositionTracker positionTracker, MechanismLigament2d ligament) {
         motorConfig = new SparkMaxConfig();
 
         motorConfig
