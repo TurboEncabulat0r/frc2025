@@ -14,8 +14,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.commands.AlgaeInCommand;
+import frc.robot.commands.AlgaeOutCommand;
+import frc.robot.commands.ArmDownCommand;
+import frc.robot.commands.ArmUpCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.RollerSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class RobotContainer {
@@ -29,9 +34,13 @@ public class RobotContainer {
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
+    private final RollerSubsystem roller = new RollerSubsystem();
+    private final ArmSubsystem armsubsystem = new ArmSubsystem();
+
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController joystick = new CommandXboxController(0);
+    //private final CommandPS5Controller joystick = new CommandPS5Controller(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -63,8 +72,16 @@ public class RobotContainer {
         joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
+
+        joystick.rightBumper().whileTrue(new AlgaeInCommand(roller));
+        joystick.rightTrigger().whileTrue(new AlgaeOutCommand(roller));
+
+        joystick.leftBumper().whileTrue(new ArmUpCommand(armsubsystem));
+        joystick.leftTrigger().whileTrue(new ArmDownCommand(armsubsystem));
+
+
         // reset the field-centric heading on left bumper press
-        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        //joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
