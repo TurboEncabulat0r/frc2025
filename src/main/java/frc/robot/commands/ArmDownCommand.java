@@ -7,6 +7,7 @@ import com.revrobotics.spark.SparkAbsoluteEncoder;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
+@SuppressWarnings("unused")
 public class ArmDownCommand extends Command {
   private final ArmSubsystem m_arm;
 
