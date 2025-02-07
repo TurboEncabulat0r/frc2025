@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AlgaeInCommand;
 import frc.robot.commands.AlgaeOutCommand;
 import frc.robot.commands.ArmDownCommand;
@@ -22,6 +23,7 @@ import frc.robot.commands.ArmUpCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.RollerSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 @SuppressWarnings("unused")
@@ -38,12 +40,13 @@ public class RobotContainer {
 
     private final RollerSubsystem roller = new RollerSubsystem();
     private final ArmSubsystem armsubsystem = new ArmSubsystem();
+    private final ClimberSubsystem climber = new ClimberSubsystem();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     //private final CommandPS5Controller joystick = new CommandPS5Controller(0);
 
-    private final CommandXboxController joystick = new CommandXboxController(0);
+    private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -101,6 +104,8 @@ public class RobotContainer {
         joystick.leftTrigger().whileTrue(new ArmUpCommand(armsubsystem));
         joystick.leftBumper().whileTrue(new ArmDownCommand(armsubsystem));
 
+        joystick.x().whileTrue(climber.winchUpCommand());
+        joystick.y().whileTrue(climber.winchDownCommand());
 
         // reset the field-centric heading on left bumper press
         //joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
