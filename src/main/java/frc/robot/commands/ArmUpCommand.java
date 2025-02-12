@@ -1,14 +1,14 @@
 package frc.robot.commands;
 
 import frc.robot.Constants.ArmConstants;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.AlgaeArmSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 
 public class ArmUpCommand extends Command {
-  private final ArmSubsystem m_arm;
+  private final AlgaeArmSubsystem m_arm;
 
-  public ArmUpCommand(ArmSubsystem arm) {
+  public ArmUpCommand(AlgaeArmSubsystem arm) {
     m_arm = arm;
     addRequirements(arm);
   }

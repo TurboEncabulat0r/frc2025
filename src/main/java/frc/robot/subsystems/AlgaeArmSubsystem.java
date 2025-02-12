@@ -10,14 +10,14 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
-public class ArmSubsystem extends SubsystemBase {
+public class AlgaeArmSubsystem extends SubsystemBase {
 
     private final SparkMax armMotor;
     
     /**
      * This subsytem that controls the arm.
      */
-    public ArmSubsystem () {
+    public AlgaeArmSubsystem () {
 
     // Set up the arm motor as a brushed motor
     armMotor = new SparkMax(12, MotorType.kBrushless);

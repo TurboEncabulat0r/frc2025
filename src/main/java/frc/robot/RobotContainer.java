@@ -9,12 +9,18 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AlgaeInCommand;
 import frc.robot.commands.AlgaeOutCommand;
@@ -22,12 +28,44 @@ import frc.robot.commands.ArmDownCommand;
 import frc.robot.commands.ArmUpCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.RollerSubsystem;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.AlgaeArmSubsystem;
+import frc.robot.subsystems.CoralArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.Constants.ScoreLevel;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.math.util.Units;
 
 @SuppressWarnings("unused")
 public class RobotContainer {
+
+    private Mechanism2d mechanisms = new Mechanism2d(5, 3);
+    private MechanismRoot2d root = mechanisms.getRoot("root", 2.5, 0.25);
+
+    @SuppressWarnings("unused")
+    private MechanismLigament2d fromRobot = root
+            .append(new MechanismLigament2d("fromRobot", Units.inchesToMeters(5.5), 180, 0,
+                    new Color8Bit(Color.kWhite)));
+    @SuppressWarnings("unused")
+    private MechanismLigament2d elevatorBase = root
+            .append(new MechanismLigament2d("elevatorBase", Units.inchesToMeters(36), 90, 2,
+                    new Color8Bit(Color.kWhite)));
+    private MechanismLigament2d elevatorLigament = root
+            .append(new MechanismLigament2d("elevatorStage", Units.inchesToMeters(10), 90,
+                    4,
+                    new Color8Bit(Color.kOrange)));
+    private MechanismLigament2d armLigament = elevatorLigament
+            .append(new MechanismLigament2d("armLigament", Units.inchesToMeters(10), 270,
+                    5,
+                    new Color8Bit(Color.kRed)));
+
+    PositionTracker positionTracker = new PositionTracker();
+
+    ElevatorSubsystem elevator = new ElevatorSubsystem(positionTracker, elevatorLigament);
+    CoralArmSubsystem CoralArm = new CoralArmSubsystem(positionTracker, armLigament, elevator::getCarriageComponentPose);
+
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -39,7 +77,7 @@ public class RobotContainer {
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final RollerSubsystem roller = new RollerSubsystem();
-    private final ArmSubsystem armsubsystem = new ArmSubsystem();
+    private final AlgaeArmSubsystem armsubsystem = new AlgaeArmSubsystem();
     private final ClimberSubsystem climber = new ClimberSubsystem();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -47,6 +85,7 @@ public class RobotContainer {
     //private final CommandPS5Controller joystick = new CommandPS5Controller(0);
 
     private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController joystickpt2 = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -107,6 +146,14 @@ public class RobotContainer {
         joystick.x().whileTrue(climber.winchUpCommand());
         joystick.y().whileTrue(climber.winchDownCommand());
 
+        joystickpt2.povUp().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L1, elevator, CoralArm));
+        joystickpt2.povLeft().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L2, elevator, CoralArm));
+        joystickpt2.povDown().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L3, elevator, CoralArm));
+        joystickpt2.povRight().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L4, elevator, CoralArm));
+        joystickpt2.start().whileTrue(RobotCommands.scoreCoralCommand(drivetrain, elevator, CoralArm));
+        
+        joystickpt2.a().whileTrue(elevator.CMDSetVoltage(12));
+        joystickpt2.b().whileTrue(elevator.CMDSetVoltage(-12));
         // reset the field-centric heading on left bumper press
         //joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
