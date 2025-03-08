@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
 import frc.robot.PositionTracker;
 import frc.robot.Constants.Arm.ArmPosition;
 import frc.robot.GlobalStates;
@@ -85,7 +84,6 @@ public class CoralArmSubsystem extends SubsystemBase implements BaseSingleJointe
 
     private final SysIdRoutine sysIdRoutine;
 
-    private final PositionTracker positionTracker;
     private final MechanismLigament2d ligament;
     private final Supplier<Pose3d> carriagePoseSupplier;
 
@@ -118,7 +116,6 @@ public class CoralArmSubsystem extends SubsystemBase implements BaseSingleJointe
                         },
                         this));
 
-        this.positionTracker = positionTracker;
         this.ligament = ligament;
         this.carriagePoseSupplier = carriagePoseSupplier;
 
@@ -187,8 +184,7 @@ public class CoralArmSubsystem extends SubsystemBase implements BaseSingleJointe
         voltage = Utils.applySoftStops(voltage, getPosition(), MIN_ANGLE_RADIANS, MAX_ANGLE_RADIANS);
 
         if (voltage < 0
-                && getPosition() < 0
-                && positionTracker.getElevatorPosition() < Constants.Elevator.MOTION_LIMIT) {
+                && getPosition() < 0) {
             voltage = 0;
         }
 

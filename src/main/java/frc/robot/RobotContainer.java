@@ -25,12 +25,10 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AlgaeInCommand;
 import frc.robot.commands.AlgaeOutCommand;
 import frc.robot.commands.ArmDownCommand;
-import frc.robot.commands.ElevatorUpCommand;
-import frc.robot.Constants.Elevator.ElevatorPosition;
-import frc.robot.RobotCommands;
 import frc.robot.commands.ArmUpCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.RollerSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem.ElevatorPosition;
 import frc.robot.subsystems.AlgaeArmSubsystem;
 import frc.robot.subsystems.CoralArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -67,8 +65,7 @@ public class RobotContainer {
 
     PositionTracker positionTracker = new PositionTracker();
 
-    ElevatorSubsystem elevator = new ElevatorSubsystem(positionTracker, elevatorLigament);
-    CoralArmSubsystem CoralArm = new CoralArmSubsystem(positionTracker, armLigament, elevator::getCarriageComponentPose);
+    ElevatorSubsystem elevator = new ElevatorSubsystem();
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -150,19 +147,19 @@ public class RobotContainer {
         joystick.x().whileTrue(climber.winchUpCommand());
         joystick.y().whileTrue(climber.winchDownCommand());
 
-        joystickpt2.povUp().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L1, elevator, CoralArm));
-        joystickpt2.povLeft().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L2, elevator, CoralArm));
-        joystickpt2.povDown().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L3, elevator, CoralArm));
-        joystickpt2.povRight().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L4, elevator, CoralArm));
-        joystickpt2.start().whileTrue(RobotCommands.scoreCoralCommand(drivetrain, elevator, CoralArm));
+        joystickpt2.povUp().onTrue(elevator.setPosition(ElevatorPosition.L_FOUR));
+        joystickpt2.povLeft().onTrue(elevator.setPosition(ElevatorPosition.L_THREE));
+        joystickpt2.povDown().onTrue(elevator.setPosition(ElevatorPosition.L_TWO));
+        joystickpt2.povRight().onTrue(elevator.setPosition(ElevatorPosition.L_ONE));
 
-        joystickpt2.a().onTrue(elevator.CMDSetVoltage(4));
-        joystickpt2.a().onFalse(elevator.CMDSetVoltage(0.5));
 
-        joystickpt2.b().onTrue(elevator.CMDSetVoltage(-2));
-        joystickpt2.b().onFalse(elevator.CMDSetVoltage(0.5));
+        joystickpt2.a().onTrue(elevator.setRaw(30));
+        joystickpt2.a().onFalse(elevator.setRaw(5));
 
-       joystickpt2.x().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L3, elevator, CoralArm));
+        joystickpt2.b().onTrue(elevator.setRaw(-30));
+        joystickpt2.b().onFalse(elevator.setRaw(-5));
+
+
         // joystickpt2.x().onTrue(CoralArm.CMDSetVoltage(2));
         // joystickpt2.x().onFalse(CoralArm.CMDSetVoltage(0.1));
         // joystickpt2.y().onTrue(CoralArm.CMDSetVoltage(-2));
