@@ -25,6 +25,9 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AlgaeInCommand;
 import frc.robot.commands.AlgaeOutCommand;
 import frc.robot.commands.ArmDownCommand;
+import frc.robot.commands.ElevatorUpCommand;
+import frc.robot.Constants.Elevator.ElevatorPosition;
+import frc.robot.RobotCommands;
 import frc.robot.commands.ArmUpCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.RollerSubsystem;
@@ -37,6 +40,7 @@ import frc.robot.Constants.ScoreLevel;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.math.util.Units;
+
 
 @SuppressWarnings("unused")
 public class RobotContainer {
@@ -151,9 +155,18 @@ public class RobotContainer {
         joystickpt2.povDown().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L3, elevator, CoralArm));
         joystickpt2.povRight().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L4, elevator, CoralArm));
         joystickpt2.start().whileTrue(RobotCommands.scoreCoralCommand(drivetrain, elevator, CoralArm));
-        
-        joystickpt2.a().whileTrue(elevator.CMDSetVoltage(12));
-        joystickpt2.b().whileTrue(elevator.CMDSetVoltage(-12));
+
+        joystickpt2.a().onTrue(elevator.CMDSetVoltage(4));
+        joystickpt2.a().onFalse(elevator.CMDSetVoltage(0.5));
+
+        joystickpt2.b().onTrue(elevator.CMDSetVoltage(-2));
+        joystickpt2.b().onFalse(elevator.CMDSetVoltage(0.5));
+
+       joystickpt2.x().whileTrue(RobotCommands.prepareCoralScoreCommand(ScoreLevel.L3, elevator, CoralArm));
+        // joystickpt2.x().onTrue(CoralArm.CMDSetVoltage(2));
+        // joystickpt2.x().onFalse(CoralArm.CMDSetVoltage(0.1));
+        // joystickpt2.y().onTrue(CoralArm.CMDSetVoltage(-2));
+        // joystickpt2.y().onFalse(CoralArm.CMDSetVoltage(0.1));
         // reset the field-centric heading on left bumper press
         //joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 

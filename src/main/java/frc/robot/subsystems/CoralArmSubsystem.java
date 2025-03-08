@@ -124,7 +124,7 @@ public class CoralArmSubsystem extends SubsystemBase implements BaseSingleJointe
 
         positionTracker.setArmAngleSupplier(this::getPosition);
 
-        setDefaultCommand(moveToCurrentGoalCommand());
+       setDefaultCommand(moveToCurrentGoalCommand());
     }
 
     @Override
@@ -173,6 +173,12 @@ public class CoralArmSubsystem extends SubsystemBase implements BaseSingleJointe
     public void resetPosition() {
         motor.getEncoder().setPosition(ArmPosition.TOP.value);
         initialized = true;
+    }
+
+    public Command CMDSetVoltage(double voltage){
+        return Commands.runOnce(() -> {
+            motor.setVoltage(voltage);
+        });
     }
 
     @Override

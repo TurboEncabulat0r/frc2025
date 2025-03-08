@@ -180,12 +180,11 @@ public class ElevatorSubsystem extends SubsystemBase implements BaseLinearMechan
         
     }
 
+
     public Command CMDSetVoltage(double voltage){
-        System.out.print("it ran");
-        return Commands.startEnd(
-            () -> motor.setVoltage(voltage),
-            () -> motor.setVoltage(0))
-            .withName("elevator.SetVoltageCommand");
+        return Commands.runOnce(() -> {
+            motor.setVoltage(voltage);
+        });
     }
 
     @Override
