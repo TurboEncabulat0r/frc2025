@@ -183,7 +183,7 @@ public static final class Intake {
 
      public static class ElevatorConstants {
         // MOTOR CAN BUS IDS
-        public static final int kLeaderID = 4;
+        public static final int kLeaderID = 6;
         // RAW PID CONSTANTS TODO: TUNE
         public static final double kP = .1;
         public static final double kI = 0;

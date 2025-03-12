@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -68,6 +69,7 @@ public class RobotContainer {
     ElevatorSubsystem elevator = new ElevatorSubsystem();
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double SpeedModifer = 1;
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -81,13 +83,14 @@ public class RobotContainer {
     private final AlgaeArmSubsystem armsubsystem = new AlgaeArmSubsystem();
     private final ClimberSubsystem climber = new ClimberSubsystem();
 
+    private final CoralArmSubsystem coral = new CoralArmSubsystem(positionTracker, armLigament);
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     //private final CommandPS5Controller joystick = new CommandPS5Controller(0);
 
     private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
-    private final CommandXboxController joystickpt2 = new CommandXboxController(1);
-
+    //private final CommandXboxController joystickpt2 = new CommandXboxController(1);
+    private final CommandGenericHID console = new CommandGenericHID(1);
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public RobotContainer() {
@@ -100,11 +103,12 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed * SpeedModifer) // Drive forward with negative Y (forward)
+                    .withVelocityY(-joystick.getLeftX() * MaxSpeed * SpeedModifer) // Drive left with negative X (left)
+                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate * SpeedModifer) // Drive counterclockwise with negative X (left)
             )
         );
+
 
         // joystick.cross().whileTrue(drivetrain.applyRequest(() -> brake));
         // joystick.circle().whileTrue(drivetrain.applyRequest(() ->
@@ -141,29 +145,32 @@ public class RobotContainer {
         joystick.rightTrigger().whileTrue(new AlgaeInCommand(roller));
         joystick.rightBumper().whileTrue(new AlgaeOutCommand(roller));
 
-        joystick.leftTrigger().whileTrue(new ArmUpCommand(armsubsystem));
-        joystick.leftBumper().whileTrue(new ArmDownCommand(armsubsystem));
 
-        joystick.x().whileTrue(climber.winchUpCommand());
-        joystick.y().whileTrue(climber.winchDownCommand());
+        console.button(9).whileTrue(new ArmUpCommand(armsubsystem));
+        console.button(10).whileTrue(new ArmDownCommand(armsubsystem));
 
-        joystickpt2.povUp().onTrue(elevator.setPosition(ElevatorPosition.L_FOUR));
-        joystickpt2.povLeft().onTrue(elevator.setPosition(ElevatorPosition.L_THREE));
-        joystickpt2.povDown().onTrue(elevator.setPosition(ElevatorPosition.L_TWO));
-        joystickpt2.povRight().onTrue(elevator.setPosition(ElevatorPosition.L_ONE));
+        console.button(11).whileTrue(climber.winchUpCommand());
+        console.button(12).whileTrue(climber.winchDownCommand());
+
+        console.button(13).onTrue(elevator.setPosition(ElevatorPosition.L_FOUR));
+        console.button(14).onTrue(elevator.setPosition(ElevatorPosition.L_THREE));
+        console.button(15).onTrue(elevator.setPosition(ElevatorPosition.L_TWO));
+        console.button(16).onTrue(elevator.setPosition(ElevatorPosition.L_ONE));
+
+        joystick.leftTrigger().onTrue(Commands.runOnce(() -> SpeedModifer = 0.4));
+        joystick.leftTrigger().onFalse(Commands.runOnce(() -> SpeedModifer = 1));
+
+        console.button(17).onTrue(elevator.setRaw(0.3));
+        console.button(17).onFalse(elevator.setRaw(0.05));
+
+        console.button(18).onTrue(elevator.setRaw(-0.3));
+        console.button(18).onFalse(elevator.setRaw(-0.05));
 
 
-        joystickpt2.a().onTrue(elevator.setRaw(30));
-        joystickpt2.a().onFalse(elevator.setRaw(5));
-
-        joystickpt2.b().onTrue(elevator.setRaw(-30));
-        joystickpt2.b().onFalse(elevator.setRaw(-5));
-
-
-        // joystickpt2.x().onTrue(CoralArm.CMDSetVoltage(2));
-        // joystickpt2.x().onFalse(CoralArm.CMDSetVoltage(0.1));
-        // joystickpt2.y().onTrue(CoralArm.CMDSetVoltage(-2));
-        // joystickpt2.y().onFalse(CoralArm.CMDSetVoltage(0.1));
+        console.button(7).onTrue(coral.CMDSetVoltage(2));
+        console.button(7).onFalse(coral.CMDSetVoltage(-0.2));
+        console.button(8).onTrue(coral.CMDSetVoltage(-2));
+        console.button(8).onFalse(coral.CMDSetVoltage(-0.2));
         // reset the field-centric heading on left bumper press
         //joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 

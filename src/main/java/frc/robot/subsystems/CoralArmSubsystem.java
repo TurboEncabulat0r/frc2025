@@ -85,12 +85,11 @@ public class CoralArmSubsystem extends SubsystemBase implements BaseSingleJointe
     private final SysIdRoutine sysIdRoutine;
 
     private final MechanismLigament2d ligament;
-    private final Supplier<Pose3d> carriagePoseSupplier;
 
     @Log
     private boolean initialized;
 
-    public CoralArmSubsystem(PositionTracker positionTracker, MechanismLigament2d ligament, Supplier<Pose3d> carriagePoseSupplier) {
+    public CoralArmSubsystem(PositionTracker positionTracker, MechanismLigament2d ligament) {
 
         motorConfig = new SparkMaxConfig();
         motorConfig
@@ -117,11 +116,10 @@ public class CoralArmSubsystem extends SubsystemBase implements BaseSingleJointe
                         this));
 
         this.ligament = ligament;
-        this.carriagePoseSupplier = carriagePoseSupplier;
 
         positionTracker.setArmAngleSupplier(this::getPosition);
 
-       setDefaultCommand(moveToCurrentGoalCommand());
+       //setDefaultCommand(moveToCurrentGoalCommand());
     }
 
     @Override
@@ -142,9 +140,7 @@ public class CoralArmSubsystem extends SubsystemBase implements BaseSingleJointe
 
     @Log(groups = "components")
     public Pose3d getArmComponentPose() {
-        return carriagePoseSupplier.get()
-                .plus(new Transform3d(0.083, 0, 0, new Rotation3d()))
-                .plus(new Transform3d(0, 0, 0, new Rotation3d(0, -getPosition(), 0)));
+        return new Pose3d();
     }
 
     @Log(groups = "components")
