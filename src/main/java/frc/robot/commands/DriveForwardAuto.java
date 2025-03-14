@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import edu.wpi.first.math.util.Units;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
