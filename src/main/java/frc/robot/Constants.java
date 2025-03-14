@@ -23,15 +23,28 @@ public final class Constants {
 	public static final double Y_REEF_ALIGNMENT_P = 3.3;
 	public static final double ROT_REEF_ALIGNMENT_P = 0.058;
 
-	public static final double ROT_SETPOINT_REEF_ALIGNMENT = 0;  // Rotation
+	public static final double ROT_SETPOINT_REEF_ALIGNMENT = 3;  // Rotation
 	public static final double ROT_TOLERANCE_REEF_ALIGNMENT = 1;
-	public static final double X_SETPOINT_REEF_ALIGNMENT = -0.34;  // Vertical pose
+	public static final double X_SETPOINT_REEF_ALIGNMENT = -0.17;  // Vertical pose
 	public static final double X_TOLERANCE_REEF_ALIGNMENT = 0.02;
-	public static final double Y_SETPOINT_REEF_ALIGNMENT = 0.16;  // Horizontal pose
+	public static final double Y_SETPOINT_REEF_ALIGNMENT = -0.87;  // Horizontal pose
 	public static final double Y_TOLERANCE_REEF_ALIGNMENT = 0.02;
 
   public static final double DONT_SEE_TAG_WAIT_TIME = 1;
 	public static final double POSE_VALIDATION_TIME = 0.3;
+
+  public static final int CORAL_SCORER_MOTOR_ID = 2;
+	public static final int CORAL_SCORER_CURRENT_LIMIT = 110;
+	public static final double CORAL_SCORE_POWER = 0.4;
+  public static final double AUTO_CORAL_INTAKE_POWER = 0.05;
+	public static final double CORAL_SCORER_MAX_VELO = 3500;
+	public static final double CORAL_SCORER_MAX_ACCELLERATION = 12000;
+	public static final double CORAL_SCORER_P = 10;
+	public static final double CORAL_SCORER_I = 0;
+	public static final double CORAL_SCORER_D = 0;
+	public static final double CORAL_SCORER_POSITION_TOLERANCE = 0.1;
+	public static final double CORAL_SCORER_INTAKE_CURRENT_LIMIT = 50;
+	public static final double CORAL_SCORER_INTAKE_ROTS = 0.8;
 
   public enum ScoreLevel {
     L1, L2, L3, L4, None;
@@ -216,8 +229,8 @@ public static final class Intake {
         // LIMIT VALUES
         public static final double kMinimumRotationLimit = -5; // TODO: SET
         public static final double kMaximumRotationLimit = 100; // TODO: SET
-        public static final double kMinimumOutputLimit = -.8;
-        public static final double kMaximumOutputLimit = .8;
+        public static final double kMinimumOutputLimit = -.5;
+        public static final double kMaximumOutputLimit = .6;
         // INVERSIONS
         public static final boolean kInverted = false;
         public static final boolean kFollowerInverted = true;

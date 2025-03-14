@@ -46,7 +46,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(double voltage) {
-        voltage = MathUtil.clamp(voltage, -4, 4);
+        //voltage = MathUtil.clamp(voltage, -4, 4);
         motor.setVoltage(voltage);
     }
 

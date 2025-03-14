@@ -24,7 +24,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     // MOTORS
     private SparkMax leadMotor;
     // ENCODER
-    private RelativeEncoder encoder;
+    public RelativeEncoder encoder;
     // FEEDBACK CONTROLLER
     private SparkClosedLoopController feedbackController;
     // CONFIGS
@@ -94,6 +94,12 @@ public class ElevatorSubsystem extends SubsystemBase {
         });
     }
 
+    public Command lockPosition() {
+        return runOnce(() -> {
+            feedbackController.setReference(encoder.getPosition(), SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        });
+    }
+
     /** Sets the target height of the elevator using trapezoidal profiling. 
      * @param ElevatorPosition
      * The taregt position: including state and height.
@@ -124,6 +130,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private double getElevatorError() {
         return Math.abs(Math.abs(encoder.getPosition()) - Math.abs(currentTargetPosition.rotations));
+    }
+
+    public double getPosition() {
+            return encoder.getPosition();
     }
 
     /**Resets encoder to 0*/
@@ -170,9 +180,9 @@ public class ElevatorSubsystem extends SubsystemBase {
       
         GROUND_INTAKE(7), CORAL_STATION_INTAKE(0),
 
-        L_ONE(0), L_TWO(3.5), L_THREE(45), L_FOUR(75);
+        L_ONE(0), L_TWO(3.5), L_THREE(45), L_FOUR(70);
 
-        private double rotations;
+        public double rotations;
         /**Constrcutor for height for ElevatorPositions (Enum for Elevator poses)
         * @param rotations
         * verticle movement in centimeters

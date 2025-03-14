@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AlgaeInCommand;
 import frc.robot.commands.AlgaeOutCommand;
+import frc.robot.commands.AlignToReefTagRelative;
 import frc.robot.commands.ArmDownCommand;
 import frc.robot.commands.ArmUpCommand;
 import frc.robot.generated.TunerConstants;
@@ -32,7 +33,7 @@ import frc.robot.subsystems.RollerSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.ElevatorPosition;
 import frc.robot.subsystems.AlgaeArmSubsystem;
 import frc.robot.subsystems.CoralArmSubsystem;
-import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.CoralScorer;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.Constants.ScoreLevel;
@@ -69,21 +70,26 @@ public class RobotContainer {
     ElevatorSubsystem elevator = new ElevatorSubsystem();
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double SpeedModifer = 1;
+    private double SpeedModifer = 0.85;
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    //  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+    //          .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+    //          .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    public final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric()
+    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage); 
+
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final RollerSubsystem roller = new RollerSubsystem();
     private final AlgaeArmSubsystem armsubsystem = new AlgaeArmSubsystem();
-    private final ClimberSubsystem climber = new ClimberSubsystem();
 
-    private final CoralArmSubsystem coral = new CoralArmSubsystem(positionTracker, armLigament);
+
+    //private final CoralArmSubsystem coral = new CoralArmSubsystem(positionTracker, armLigament);
+    private final CoralScorer scorer = new CoralScorer();
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     //private final CommandPS5Controller joystick = new CommandPS5Controller(0);
@@ -125,7 +131,7 @@ public class RobotContainer {
 
         // joystick.R1().whileTrue(new AlgaeInCommand(roller));
         // joystick.R2().whileTrue(new AlgaeOutCommand(roller));
-
+            // 33.3 
         // joystick.L1().whileTrue(new ArmUpCommand(armsubsystem));
         // joystick.L2().whileTrue(new ArmDownCommand(armsubsystem));
 
@@ -133,7 +139,7 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
-
+        
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -145,32 +151,42 @@ public class RobotContainer {
         joystick.rightTrigger().whileTrue(new AlgaeInCommand(roller));
         joystick.rightBumper().whileTrue(new AlgaeOutCommand(roller));
 
+        // joystick.povUp().whileTrue(new ArmUpCommand(armsubsystem));
+        // joystick.povDown().whileTrue(new ArmDownCommand(armsubsystem));
 
         console.button(9).whileTrue(new ArmUpCommand(armsubsystem));
         console.button(10).whileTrue(new ArmDownCommand(armsubsystem));
 
-        console.button(11).whileTrue(climber.winchUpCommand());
-        console.button(12).whileTrue(climber.winchDownCommand());
+        console.button(11).whileTrue(new AlgaeInCommand(roller));
+        console.button(12).whileTrue(new AlgaeOutCommand(roller));
 
-        console.button(13).onTrue(elevator.setPosition(ElevatorPosition.L_FOUR));
-        console.button(14).onTrue(elevator.setPosition(ElevatorPosition.L_THREE));
-        console.button(15).onTrue(elevator.setPosition(ElevatorPosition.L_TWO));
-        console.button(16).onTrue(elevator.setPosition(ElevatorPosition.L_ONE));
+        console.button(13).onTrue(Commands.sequence( elevator.setPosition(ElevatorPosition.L_FOUR), Commands.waitSeconds(0.8), Commands.runOnce(() -> scorer.moveCoralScorerToPose(21))));
+        console.button(14).onTrue(Commands.sequence( elevator.setPosition(ElevatorPosition.L_THREE), Commands.waitSeconds(0.8), Commands.runOnce(() -> scorer.moveCoralScorerToPose(21))));
+        console.button(15).onTrue(Commands.sequence( elevator.setPosition(ElevatorPosition.L_TWO), Commands.waitSeconds(0.8), Commands.runOnce(() -> scorer.moveCoralScorerToPose(21))));
+        console.button(16).onTrue(Commands.sequence(Commands.runOnce(() -> scorer.moveCoralScorerToPose(0)), Commands.waitSeconds(0.8),elevator.setPosition(ElevatorPosition.L_ONE)));
 
-        joystick.leftTrigger().onTrue(Commands.runOnce(() -> SpeedModifer = 0.4));
-        joystick.leftTrigger().onFalse(Commands.runOnce(() -> SpeedModifer = 1));
+        joystick.leftTrigger().onTrue(Commands.runOnce(() -> SpeedModifer = 0.3));
+        joystick.leftTrigger().onFalse(Commands.runOnce(() -> SpeedModifer = 0.85));
 
         console.button(17).onTrue(elevator.setRaw(0.3));
-        console.button(17).onFalse(elevator.setRaw(0.05));
+        console.button(17).onFalse(elevator.lockPosition());
 
         console.button(18).onTrue(elevator.setRaw(-0.3));
-        console.button(18).onFalse(elevator.setRaw(-0.05));
+        console.button(18).onFalse(elevator.lockPosition());
 
+        console.button(7).onTrue(Commands.runOnce(()-> scorer.setPower(0.3)));
+        console.button(7).onFalse(scorer.lockPosition());
 
-        console.button(7).onTrue(coral.CMDSetVoltage(2));
-        console.button(7).onFalse(coral.CMDSetVoltage(-0.2));
-        console.button(8).onTrue(coral.CMDSetVoltage(-2));
-        console.button(8).onFalse(coral.CMDSetVoltage(-0.2));
+        console.button(8).onTrue(Commands.runOnce(()-> scorer.setPower(-0.3)));
+        console.button(8).onFalse(scorer.lockPosition());
+        // old coral score 
+        // console.button(7).onTrue(coral.CMDSetVoltage(2));
+        // console.button(7).onFalse(coral.CMDSetVoltage(-0.2));
+        // console.button(8).onTrue(coral.CMDSetVoltage(-2));
+        // console.button(8).onFalse(coral.CMDSetVoltage(-0.2));
+
+        console.button(19).onTrue(new AlignToReefTagRelative(false, drivetrain));
+        console.button(20).onTrue(new AlignToReefTagRelative(true, drivetrain));
         // reset the field-centric heading on left bumper press
         //joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 

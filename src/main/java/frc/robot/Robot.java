@@ -5,17 +5,21 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.DriveForwardAuto;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-
   private final RobotContainer m_robotContainer;
+  private Timer timer;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
+    timer = new Timer();
   }
 
   @Override
@@ -36,15 +40,29 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    //m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    // m_autonomousCommand = null;
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    // if (m_autonomousCommand != null) {
+    //   m_autonomousCommand.schedule();
+    // }
+    timer.restart();
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if (timer.get() < 2) {
+      m_robotContainer.drivetrain.applyRequest(() ->
+      m_robotContainer.drive.withVelocityX(3) // Drive forward with negative Y (forward)
+          .withVelocityY(0) // Drive left with negative X (left)
+          .withRotationalRate(0));
+    } else {
+      m_robotContainer.drivetrain.applyRequest(() ->
+      m_robotContainer.drive.withVelocityX(3) // Drive forward with negative Y (forward)
+          .withVelocityY(0) // Drive left with negative X (left)
+          .withRotationalRate(0));
+    }
+  }
 
   @Override
   public void autonomousExit() {}
