@@ -10,9 +10,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-
 
 public class DriveForwardAuto extends Command {
   private final CommandSwerveDrivetrain m_drive;
@@ -24,23 +23,33 @@ public class DriveForwardAuto extends Command {
   .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
   private Boolean finished = false;
-
+  private Timer t = new Timer();
   public DriveForwardAuto(CommandSwerveDrivetrain drivetrain) {
     m_drive = drivetrain;
+
 
   }
 
   @Override
   public void initialize() {
-    Commands.sequence(Commands.waitSeconds(3), Commands.run(() -> finished = true));
+    t.restart();
   }
 
   @Override
   public void execute() {
-    m_drive.setControl(m_request
-    .withVelocityX(15) // Drive forward with negative Y(forward)
-    .withVelocityY(0) // Drive left with negative X (left)
-    .withRotationalRate(0)); 
+    if (t.get() < 2){
+        m_drive.setControl(m_request
+        .withVelocityX(0.5) // Drive forward with negative Y(forward)
+        .withVelocityY(0) // Drive left with negative X (left)
+        .withRotationalRate(0)); 
+    }
+    else{
+        m_drive.setControl(m_request
+        .withVelocityX(0) // Drive forward with negative Y(forward)
+        .withVelocityY(0) // Drive left with negative X (left)
+        .withRotationalRate(0)); 
+    }
+
 
 
     // Commands.sequence(Commands.waitSeconds(0.3), Commands.run(() -> m_drive.setControl(m_request
