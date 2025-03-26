@@ -33,7 +33,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.RollerSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.ElevatorPosition;
 import frc.robot.subsystems.AlgaeArmSubsystem;
-import frc.robot.subsystems.CoralArmSubsystem;
 import frc.robot.subsystems.CoralScorer;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
